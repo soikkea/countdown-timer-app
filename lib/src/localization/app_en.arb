@@ -1,0 +1,6 @@
+{
+  "appTitle": "countdown_timer",
+  "@appTitle": {
+    "description": "The title of the application"
+  }
+}
