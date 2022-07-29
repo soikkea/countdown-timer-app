@@ -1,3 +1,6 @@
+import 'package:countdown_timer/src/countdown/countdown_details_view.dart';
+import 'package:countdown_timer/src/countdown/countdown_list_view.dart';
+import 'package:countdown_timer/src/countdown/edit_countdown_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -72,8 +75,14 @@ class MyApp extends StatelessWidget {
                   case SampleItemDetailsView.routeName:
                     return const SampleItemDetailsView();
                   case SampleItemListView.routeName:
-                  default:
                     return const SampleItemListView();
+                  case EditCountdownTimerView.routeName:
+                    return const EditCountdownTimerView();
+                  case CountdownTimerDetailsView.routeName:
+                    return const CountdownTimerDetailsView();
+                  case CountdownTimerListView.routeName:
+                  default:
+                    return const CountdownTimerListView();
                 }
               },
             );
