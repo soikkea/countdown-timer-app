@@ -7,11 +7,13 @@ class CountdownTimer {
   final DateTime startTime;
   final DateTime? endTime;
   final bool archived;
+  final DateTime createdAt;
 
   const CountdownTimer(
       {required this.id,
       required this.name,
       required this.startTime,
       this.endTime,
-      this.archived = false});
+      this.archived = false,
+      required this.createdAt});
 }

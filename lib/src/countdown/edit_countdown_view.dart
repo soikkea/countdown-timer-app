@@ -56,8 +56,8 @@ class _CountdownTimerFormState extends State<CountdownTimerForm> {
                     final newCountdown = CountdownTimer(
                         id: 0,
                         name: nameController.text,
-                        startTime:
-                            DateTime.now().add(const Duration(days: 30)));
+                        startTime: DateTime.now().add(const Duration(days: 30)).toUtc(),
+                        createdAt: DateTime.now().toUtc());
                     Provider.of<CountdownTimerProvider>(context, listen: false)
                         .add(newCountdown);
                     ScaffoldMessenger.of(context).showSnackBar(

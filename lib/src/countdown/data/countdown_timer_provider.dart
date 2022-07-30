@@ -7,7 +7,10 @@ class CountdownTimerProvider extends ChangeNotifier {
   // Placeholder
   final List<CountdownTimer> _timers = [
     CountdownTimer(
-        id: 1, name: "Christmas 2022", startTime: DateTime(2022, 12, 24))
+        id: 1,
+        name: "Christmas 2022",
+        startTime: DateTime(2022, 12, 24).toUtc(),
+        createdAt: DateTime.utc(2022, 7, 30)),
   ];
 
   UnmodifiableListView<CountdownTimer> get timers =>
