@@ -1,6 +1,7 @@
 import 'package:countdown_timer/src/countdown/data/countdown_timer.dart';
 import 'package:countdown_timer/src/countdown/data/countdown_timer_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 class EditCountdownTimerView extends StatelessWidget {
@@ -26,28 +27,75 @@ class CountdownTimerForm extends StatefulWidget {
 
 class _CountdownTimerFormState extends State<CountdownTimerForm> {
   final _formKey = GlobalKey<FormState>();
-  final nameController = TextEditingController();
+  final _nameController = TextEditingController();
+  DateTime _target = DateTime.now();
+  final _targetController = TextEditingController();
+
+  TimeOfDay get _targetTimeOfDay => TimeOfDay.fromDateTime(_target);
+
+  DateTime _combineDateAndTime(DateTime date, TimeOfDay time) {
+    return DateTime(date.year, date.month, date.day, time.hour, time.minute);
+  }
+
+  Future<void> _pickTargetDateTime() async {
+    final date = await showDatePicker(
+        context: context,
+        initialDate: _target,
+        firstDate: DateTime(1900),
+        lastDate: DateTime(2100));
+    if (date == null) {
+      return;
+    }
+    final time =
+        await showTimePicker(context: context, initialTime: _targetTimeOfDay);
+    if (time == null) {
+      return;
+    }
+    setState(() {
+      _target = _combineDateAndTime(date, time);
+    });
+  }
+
+  String _formatTarget() {
+    return DateFormat("yyyy-MM-dd HH:mm").format(_target);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   void dispose() {
-    nameController.dispose();
+    _nameController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    _targetController.text = _formatTarget();
+
     return Form(
         key: _formKey,
         child: Column(
           children: [
             TextFormField(
+              decoration: const InputDecoration(labelText: 'Name'),
               validator: (value) {
                 if (value == null || value.isEmpty) {
                   return "Name can't be empty";
                 }
                 return null;
               },
-              controller: nameController,
+              controller: _nameController,
+            ),
+            TextFormField(
+              controller: _targetController,
+              decoration: const InputDecoration(labelText: 'Target'),
+              readOnly: true,
+              onTap: () {
+                _pickTargetDateTime();
+              },
             ),
             ElevatedButton(
                 onPressed: () {
@@ -55,8 +103,8 @@ class _CountdownTimerFormState extends State<CountdownTimerForm> {
                     // TODO handle valid data
                     final newCountdown = CountdownTimer(
                         id: 0,
-                        name: nameController.text,
-                        startTime: DateTime.now().add(const Duration(days: 30)).toUtc(),
+                        name: _nameController.text,
+                        startTime: _target.toUtc(),
                         createdAt: DateTime.now().toUtc());
                     Provider.of<CountdownTimerProvider>(context, listen: false)
                         .add(newCountdown);
