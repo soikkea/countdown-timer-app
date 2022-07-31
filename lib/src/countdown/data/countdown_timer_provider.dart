@@ -2,9 +2,7 @@ import 'dart:collection';
 
 import 'package:countdown_timer/src/countdown/data/countdown_timer.dart';
 import 'package:countdown_timer/src/countdown/data/db_helper.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:path/path.dart';
-import 'package:sqflite/sqflite.dart';
+import 'package:flutter/widgets.dart';
 
 class CountdownTimerProvider extends ChangeNotifier {
   final DBHelper dbHelper = DBHelper();
@@ -21,5 +19,15 @@ class CountdownTimerProvider extends ChangeNotifier {
   Future<CountdownTimer> getCountdownTimer(int id) async {
     final timer = await dbHelper.getCountdownTimer(id);
     return timer!;
+  }
+
+  Future<void> updateCountdownTimer(CountdownTimer timer) async {
+    dbHelper.updateCountdownTimer(timer);
+    notifyListeners();
+  }
+
+  Future<void> deleteCountdownTimer(int id) async {
+    dbHelper.deleteCountdownTimer(id);
+    notifyListeners();
   }
 }

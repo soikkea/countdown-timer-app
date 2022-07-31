@@ -66,4 +66,25 @@ class DBHelper {
 
     return null;
   }
+
+  Future<void> updateCountdownTimer(CountdownTimer timer) async {
+    final db = await database;
+
+    await db.update(
+      tableName,
+      timer.toMap(),
+      where: 'id = ?',
+      whereArgs: [timer.id],
+    );
+  }
+
+  Future<void> deleteCountdownTimer(int id) async {
+    final db = await database;
+
+    await db.delete(
+      tableName,
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
 }

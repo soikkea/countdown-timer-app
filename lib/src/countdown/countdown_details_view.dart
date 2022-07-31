@@ -23,6 +23,16 @@ class CountdownTimerDetailsView extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Details'),
+        actions: [
+          IconButton(
+            onPressed: () {
+              Provider.of<CountdownTimerProvider>(context, listen: false)
+                  .deleteCountdownTimer(args.id);
+              Navigator.pop(context);
+            },
+            icon: const Icon(Icons.delete),
+          ),
+        ],
       ),
       body: Center(child: CountdownTimerDetails(id: args.id)),
     );
@@ -74,7 +84,9 @@ class _CountdownTimerDetailsState extends State<CountdownTimerDetails> {
   String _formatDurationToTarget(DateTime targetInUtc) {
     // TODO: Handle case when duration negative
     final targetInLocal = targetInUtc.toLocal();
-    final duration = targetInLocal.isAfter(_currentTimeLocal) ? targetInLocal.difference(_currentTimeLocal) : _currentTimeLocal.difference(targetInLocal);
+    final duration = targetInLocal.isAfter(_currentTimeLocal)
+        ? targetInLocal.difference(_currentTimeLocal)
+        : _currentTimeLocal.difference(targetInLocal);
     final days = duration.inDays;
     final hours = duration.inHours % 24;
     final minutes = duration.inMinutes % 60;
