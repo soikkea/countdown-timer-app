@@ -1,4 +1,7 @@
 import 'dart:async';
+import 'dart:math' as math;
+
+import 'package:countdown_timer/src/countdown/circles.dart';
 import 'package:countdown_timer/src/countdown/data/countdown_timer.dart';
 import 'package:countdown_timer/src/countdown/data/countdown_timer_provider.dart';
 import 'package:flutter/material.dart';
@@ -83,10 +86,7 @@ class _CountdownTimerDetailsState extends State<CountdownTimerDetails> {
 
   String _formatDurationToTarget(DateTime targetInUtc) {
     // TODO: Handle case when duration negative
-    final targetInLocal = targetInUtc.toLocal();
-    final duration = targetInLocal.isAfter(_currentTimeLocal)
-        ? targetInLocal.difference(_currentTimeLocal)
-        : _currentTimeLocal.difference(targetInLocal);
+    final duration = _getDurationInLocal(targetInUtc, _currentTimeLocal);
     final days = duration.inDays;
     final hours = duration.inHours % 24;
     final minutes = duration.inMinutes % 60;
@@ -94,6 +94,13 @@ class _CountdownTimerDetailsState extends State<CountdownTimerDetails> {
     int millis = ((duration.inMilliseconds % 1000) / 100).round();
     millis = millis == 10 ? 0 : millis;
     return '${days.toString()} d, ${padNumber(hours)}:${padNumber(minutes)}:${padNumber(seconds)}.${millis.toString()}';
+  }
+
+  Duration _getDurationInLocal(DateTime targetInUtc, DateTime currentInLocal) {
+    final targetInLocal = targetInUtc.toLocal();
+    return targetInLocal.isAfter(_currentTimeLocal)
+        ? targetInLocal.difference(_currentTimeLocal)
+        : _currentTimeLocal.difference(targetInLocal);
   }
 
   @override
@@ -104,6 +111,10 @@ class _CountdownTimerDetailsState extends State<CountdownTimerDetails> {
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           // TODO: show more info
+          final circles = buildCirclesFromDuration(
+              _getDurationInLocal(snapshot.data!.startTime, _currentTimeLocal),
+              _getDurationInLocal(snapshot.data!.startTime,
+                  snapshot.data!.createdAt.toLocal()));
           return Column(
             children: [
               Text(snapshot.data!.name,
@@ -111,7 +122,21 @@ class _CountdownTimerDetailsState extends State<CountdownTimerDetails> {
               Text(
                   'Counting down to: ${_formatTarget(snapshot.data!.startTime)}'),
               Text(_formatDurationToTarget(snapshot.data!.startTime),
-                  style: Theme.of(context).textTheme.headline4)
+                  style: Theme.of(context).textTheme.headline4),
+              LayoutBuilder(builder: ((context, constraints) {
+                return Column(
+                  children: [
+                    ConstrainedBox(
+                      constraints: BoxConstraints(
+                        maxHeight: math.min(
+                            constraints.biggest.shortestSide * 0.9,
+                            circlesMaxSize),
+                      ),
+                      child: CirclesWidget(circles: circles),
+                    )
+                  ],
+                );
+              })),
             ],
           );
         } else if (snapshot.hasError) {
