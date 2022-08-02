@@ -5,8 +5,9 @@ import 'package:countdown_timer/src/countdown/circles.dart';
 import 'package:countdown_timer/src/countdown/data/countdown_timer.dart';
 import 'package:countdown_timer/src/countdown/data/countdown_timer_provider.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+
+import 'countdown_text_utils.dart';
 
 class CountdownTimerDetailsArguments {
   final int id;
@@ -76,33 +77,6 @@ class _CountdownTimerDetailsState extends State<CountdownTimerDetails> {
     super.dispose();
   }
 
-  String padNumber(int number) {
-    return number.toString().padLeft(2, "0");
-  }
-
-  String _formatTarget(DateTime targetInUtc) {
-    return DateFormat("yyyy-MM-dd HH:mm").format(targetInUtc.toLocal());
-  }
-
-  String _formatDurationToTarget(DateTime targetInUtc) {
-    // TODO: Handle case when duration negative
-    final duration = _getDurationInLocal(targetInUtc, _currentTimeLocal);
-    final days = duration.inDays;
-    final hours = duration.inHours % 24;
-    final minutes = duration.inMinutes % 60;
-    final seconds = duration.inSeconds % 60;
-    int millis = ((duration.inMilliseconds % 1000) / 100).round();
-    millis = millis == 10 ? 0 : millis;
-    return '${days.toString()} d, ${padNumber(hours)}:${padNumber(minutes)}:${padNumber(seconds)}.${millis.toString()}';
-  }
-
-  Duration _getDurationInLocal(DateTime targetInUtc, DateTime currentInLocal) {
-    final targetInLocal = targetInUtc.toLocal();
-    return targetInLocal.isAfter(currentInLocal)
-        ? targetInLocal.difference(currentInLocal)
-        : currentInLocal.difference(targetInLocal);
-  }
-
   @override
   Widget build(BuildContext context) {
     return Center(
@@ -112,16 +86,21 @@ class _CountdownTimerDetailsState extends State<CountdownTimerDetails> {
         if (snapshot.hasData) {
           // TODO: show more info
           final circles = buildCirclesFromDuration(
-              _getDurationInLocal(snapshot.data!.startTime, _currentTimeLocal),
-              _getDurationInLocal(snapshot.data!.startTime,
+              getDurationInLocal(snapshot.data!.startTime, _currentTimeLocal),
+              getDurationInLocal(snapshot.data!.startTime,
                   snapshot.data!.createdAt.toLocal()));
           return Column(
             children: [
               Text(snapshot.data!.name,
                   style: Theme.of(context).textTheme.headline3),
               Text(
-                  'Counting down to: ${_formatTarget(snapshot.data!.startTime)}'),
-              Text(_formatDurationToTarget(snapshot.data!.startTime),
+                  'Counting down to: ${formatTarget(snapshot.data!.startTime)}'),
+              Text(
+                  formatDurationToTarget(
+                    snapshot.data!.startTime,
+                    _currentTimeLocal,
+                    includeMillis: true,
+                  ),
                   style: Theme.of(context).textTheme.headline4),
               LayoutBuilder(builder: ((context, constraints) {
                 return Column(

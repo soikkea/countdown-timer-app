@@ -1,6 +1,8 @@
+import 'dart:async';
 import 'dart:collection';
 
 import 'package:countdown_timer/src/countdown/countdown_details_view.dart';
+import 'package:countdown_timer/src/countdown/countdown_text_utils.dart';
 import 'package:countdown_timer/src/countdown/data/countdown_timer_provider.dart';
 import 'package:countdown_timer/src/countdown/edit_countdown_view.dart';
 import 'package:countdown_timer/src/settings/settings_view.dart';
@@ -19,6 +21,27 @@ class CountdownTimerListView extends StatefulWidget {
 }
 
 class _CountdownTimerListViewState extends State<CountdownTimerListView> {
+  DateTime _currentTimeLocal = DateTime.now();
+  late Timer _timer;
+
+  static const updateRate = Duration(milliseconds: 500);
+
+  @override
+  void initState() {
+    super.initState();
+    _timer = Timer.periodic(updateRate, (timer) {
+      setState(() {
+        _currentTimeLocal = DateTime.now();
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer.cancel();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -29,7 +52,9 @@ class _CountdownTimerListViewState extends State<CountdownTimerListView> {
             },
             icon: const Icon(Icons.settings))
       ]),
-      body: const _CountdownTimerList(),
+      body: _CountdownTimerList(
+        currentTimeLocal: _currentTimeLocal,
+      ),
       floatingActionButton: FloatingActionButton(
           onPressed: () {
             Navigator.pushNamed(context, EditCountdownTimerView.routeName);
@@ -40,7 +65,13 @@ class _CountdownTimerListViewState extends State<CountdownTimerListView> {
 }
 
 class _CountdownTimerList extends StatelessWidget {
-  const _CountdownTimerList({Key? key}) : super(key: key);
+  _CountdownTimerList({
+    Key? key,
+    required this.currentTimeLocal,
+  }) : super(key: key);
+
+  DateTime currentTimeLocal;
+
   @override
   Widget build(BuildContext context) {
     var provider = context.watch<CountdownTimerProvider>();
@@ -57,6 +88,8 @@ class _CountdownTimerList extends StatelessWidget {
                 itemCount: list.length,
                 itemBuilder: ((context, index) => ListTile(
                       title: Text(list[index].name),
+                      subtitle: Text(formatDurationToTarget(
+                          list[index].startTime, currentTimeLocal)),
                       onTap: () {
                         Navigator.pushNamed(
                             context, CountdownTimerDetailsView.routeName,
