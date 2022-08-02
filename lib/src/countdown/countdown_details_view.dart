@@ -98,9 +98,9 @@ class _CountdownTimerDetailsState extends State<CountdownTimerDetails> {
 
   Duration _getDurationInLocal(DateTime targetInUtc, DateTime currentInLocal) {
     final targetInLocal = targetInUtc.toLocal();
-    return targetInLocal.isAfter(_currentTimeLocal)
-        ? targetInLocal.difference(_currentTimeLocal)
-        : _currentTimeLocal.difference(targetInLocal);
+    return targetInLocal.isAfter(currentInLocal)
+        ? targetInLocal.difference(currentInLocal)
+        : currentInLocal.difference(targetInLocal);
   }
 
   @override
