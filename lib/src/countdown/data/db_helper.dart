@@ -48,7 +48,10 @@ class DBHelper {
   Future<List<CountdownTimer>> countdownTimers() async {
     final db = await database;
 
-    final List<Map<String, dynamic>> maps = await db.query(tableName);
+    final List<Map<String, dynamic>> maps = await db.query(
+      tableName,
+      orderBy: 'startTime ASC',
+    );
 
     return List.generate(
         maps.length, (index) => CountdownTimer.fromMap(maps[index]));
