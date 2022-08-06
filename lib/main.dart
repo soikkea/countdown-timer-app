@@ -20,8 +20,7 @@ void main() async {
   // SettingsView.
   runApp(
     ChangeNotifierProvider(
-      create: (context) => CountdownTimerProvider(),
-      child: MyApp(settingsController: settingsController)
-      ),
-    );
+        create: (context) => CountdownTimerProvider(),
+        child: MyApp(settingsController: settingsController)),
+  );
 }
