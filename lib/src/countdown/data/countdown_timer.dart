@@ -1,3 +1,4 @@
+import 'package:countdown_timer/src/countdown/countdown_text_utils.dart';
 import 'package:flutter/material.dart';
 
 @immutable
@@ -47,4 +48,43 @@ class CountdownTimer {
   String toString() {
     return 'CountdownTimer(id: $id, name: $name, startTime: $startTime, endTime: $endTime, archived: $archived, createdAt: $createdAt)';
   }
+
+  DateTime get finalTarget => endTime ?? startTime;
+
+  Duration getRelevantTargetDuration(DateTime currentTimeInLocal) {
+    CountdownState state = getCountdownState(currentTimeInLocal);
+    if (state == CountdownState.before) {
+      return getDurationInLocal(startTime, currentTimeInLocal);
+    }
+    if (state == CountdownState.during) {
+      return getDurationInLocal(endTime!, currentTimeInLocal);
+    }
+    return getDurationInLocal(finalTarget, currentTimeInLocal);
+  }
+
+  Duration? getReferenceDuration(DateTime currentTimeInLocal) {
+    CountdownState state = getCountdownState(currentTimeInLocal);
+    if (state == CountdownState.before) {
+      return getDurationInLocal(startTime, createdAt.toLocal());
+    }
+    if (state == CountdownState.during) {
+      return getDurationInLocal(endTime!, startTime);
+    }
+    return null;
+  }
+
+  CountdownState getCountdownState(DateTime currentTimeInLocal) {
+    DateTime currentTimeUtc = currentTimeInLocal.toUtc();
+    if (currentTimeUtc.isBefore(startTime)) {
+      return CountdownState.before;
+    }
+    if (endTime != null &&
+        !(currentTimeUtc.isBefore(startTime)) &&
+        !(currentTimeUtc.isAfter(endTime!))) {
+      return CountdownState.during;
+    }
+    return CountdownState.after;
+  }
 }
+
+enum CountdownState { before, during, after }

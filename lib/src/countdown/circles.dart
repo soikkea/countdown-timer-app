@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:countdown_timer/src/countdown/data/countdown_timer.dart';
 import 'package:flutter/material.dart';
 
 class Circle {
@@ -28,6 +29,17 @@ List<Circle> buildCirclesFromDuration(
   list.add(Circle(fill: seconds, color: Colors.red));
 
   return list;
+}
+
+List<Circle> buildCiclesFromCountdownTimer(
+  CountdownTimer timer,
+  DateTime currentTimeInLocal,
+) {
+  Duration targetDuration = timer.getRelevantTargetDuration(currentTimeInLocal);
+  Duration referenceDuration = timer.getReferenceDuration(currentTimeInLocal) ??
+      const Duration(days: 365);
+
+  return buildCirclesFromDuration(targetDuration, referenceDuration);
 }
 
 class CirclesWidget extends StatelessWidget {

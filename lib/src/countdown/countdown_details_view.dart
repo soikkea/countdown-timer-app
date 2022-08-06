@@ -84,11 +84,9 @@ class _CountdownTimerDetailsState extends State<CountdownTimerDetails> {
       future: countdownTimer,
       builder: (context, snapshot) {
         if (snapshot.hasData) {
-          // TODO: show more info
-          final circles = buildCirclesFromDuration(
-              getDurationInLocal(snapshot.data!.startTime, _currentTimeLocal),
-              getDurationInLocal(snapshot.data!.startTime,
-                  snapshot.data!.createdAt.toLocal()));
+          // TODO: handle different CountdownStates
+          final circles =
+              buildCiclesFromCountdownTimer(snapshot.data!, _currentTimeLocal);
           return Column(
             children: [
               Text(snapshot.data!.name,

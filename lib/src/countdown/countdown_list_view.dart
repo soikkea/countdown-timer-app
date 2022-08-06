@@ -65,12 +65,12 @@ class _CountdownTimerListViewState extends State<CountdownTimerListView> {
 }
 
 class _CountdownTimerList extends StatelessWidget {
-  _CountdownTimerList({
+  const _CountdownTimerList({
     Key? key,
     required this.currentTimeLocal,
   }) : super(key: key);
 
-  DateTime currentTimeLocal;
+  final DateTime currentTimeLocal;
 
   @override
   Widget build(BuildContext context) {
