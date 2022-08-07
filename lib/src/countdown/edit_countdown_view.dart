@@ -27,38 +27,8 @@ class CountdownTimerForm extends StatefulWidget {
 
 class _CountdownTimerFormState extends State<CountdownTimerForm> {
   final _formKey = GlobalKey<FormState>();
-  final _nameController = TextEditingController();
+  String _name = '';
   DateTime _target = DateTime.now();
-  final _targetController = TextEditingController();
-
-  TimeOfDay get _targetTimeOfDay => TimeOfDay.fromDateTime(_target);
-
-  DateTime _combineDateAndTime(DateTime date, TimeOfDay time) {
-    return DateTime(date.year, date.month, date.day, time.hour, time.minute);
-  }
-
-  Future<void> _pickTargetDateTime() async {
-    final date = await showDatePicker(
-        context: context,
-        initialDate: _target,
-        firstDate: DateTime(1900),
-        lastDate: DateTime(2100));
-    if (date == null) {
-      return;
-    }
-    final time =
-        await showTimePicker(context: context, initialTime: _targetTimeOfDay);
-    if (time == null) {
-      return;
-    }
-    setState(() {
-      _target = _combineDateAndTime(date, time);
-    });
-  }
-
-  String _formatTarget() {
-    return DateFormat("yyyy-MM-dd HH:mm").format(_target);
-  }
 
   @override
   void initState() {
@@ -67,54 +37,146 @@ class _CountdownTimerFormState extends State<CountdownTimerForm> {
 
   @override
   void dispose() {
-    _nameController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    _targetController.text = _formatTarget();
-
     return Form(
         key: _formKey,
         child: Column(
           children: [
             TextFormField(
-              decoration: const InputDecoration(labelText: 'Name'),
+              decoration: const InputDecoration(
+                labelText: 'Name',
+              ),
               validator: (value) {
                 if (value == null || value.isEmpty) {
                   return "Name can't be empty";
                 }
                 return null;
               },
-              controller: _nameController,
-            ),
-            TextFormField(
-              controller: _targetController,
-              decoration: const InputDecoration(labelText: 'Target'),
-              readOnly: true,
-              onTap: () {
-                _pickTargetDateTime();
+              onChanged: (value) {
+                setState(() {
+                  _name = value;
+                });
               },
             ),
+            _FormDateTimePicker(
+              date: _target,
+              onChanged: (value) {
+                setState(() {
+                  _target = value;
+                });
+              },
+              title: 'Target',
+            ),
             ElevatedButton(
-                onPressed: () {
-                  if (_formKey.currentState!.validate()) {
-                    // TODO handle valid data
-                    final newCountdown = CountdownTimer(
-                        id: 0,
-                        name: _nameController.text,
-                        startTime: _target.toUtc(),
-                        createdAt: DateTime.now().toUtc());
-                    Provider.of<CountdownTimerProvider>(context, listen: false)
-                        .add(newCountdown);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('New Countdown added!')));
-                    Navigator.pop(context);
-                  }
-                },
-                child: const Text('Submit'))
+              onPressed: () {
+                if (_formKey.currentState!.validate()) {
+                  final newCountdown = CountdownTimer(
+                    id: 0,
+                    name: _name,
+                    startTime: _target.toUtc(),
+                    createdAt: DateTime.now().toUtc(),
+                  );
+                  Provider.of<CountdownTimerProvider>(
+                    context,
+                    listen: false,
+                  ).add(newCountdown);
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                    content: Text('New Countdown added!'),
+                  ));
+                  Navigator.pop(context);
+                }
+              },
+              child: const Text('Submit'),
+            )
           ],
         ));
+  }
+}
+
+class _FormDateTimePicker extends StatefulWidget {
+  final DateTime date;
+  final ValueChanged<DateTime> onChanged;
+  final String title;
+  const _FormDateTimePicker({
+    Key? key,
+    required this.date,
+    required this.onChanged,
+    required this.title,
+  }) : super(key: key);
+
+  @override
+  State<_FormDateTimePicker> createState() => __FormDateTimePickerState();
+}
+
+class __FormDateTimePickerState extends State<_FormDateTimePicker> {
+  DateTime _combineDateAndTime(DateTime date, TimeOfDay time) {
+    return DateTime(date.year, date.month, date.day, time.hour, time.minute);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              Text(
+                widget.title,
+                style: Theme.of(context).textTheme.bodyText1,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  GestureDetector(
+                    onTap: () async {
+                      final time = TimeOfDay.fromDateTime(widget.date);
+                      var newDate = await showDatePicker(
+                        context: context,
+                        initialDate: widget.date,
+                        firstDate: DateTime(1900),
+                        lastDate: DateTime(2100),
+                      );
+
+                      if (newDate == null) {
+                        return;
+                      }
+
+                      widget.onChanged(_combineDateAndTime(newDate, time));
+                    },
+                    child: Text(
+                      DateFormat.yMd().format(widget.date),
+                      style: Theme.of(context).textTheme.subtitle1,
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () async {
+                      final time = await showTimePicker(
+                        context: context,
+                        initialTime: TimeOfDay.fromDateTime(widget.date),
+                      );
+                      if (time == null) {
+                        return;
+                      }
+
+                      widget.onChanged(_combineDateAndTime(widget.date, time));
+                    },
+                    child: Text(
+                      DateFormat.Hm().format(widget.date),
+                      style: Theme.of(context).textTheme.subtitle1,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
   }
 }
