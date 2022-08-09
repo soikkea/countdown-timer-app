@@ -170,6 +170,7 @@ class __FormDateTimePickerState extends State<_FormDateTimePicker> {
 
   @override
   Widget build(BuildContext context) {
+    Locale currentLocale = Localizations.localeOf(context);
     return Row(
       children: [
         Expanded(
@@ -190,6 +191,7 @@ class __FormDateTimePickerState extends State<_FormDateTimePicker> {
                       var newDate = await showDatePicker(
                         context: context,
                         initialDate: widget.date,
+                        locale: currentLocale,
                         firstDate: DateTime(1900),
                         lastDate: DateTime(2100),
                       );
