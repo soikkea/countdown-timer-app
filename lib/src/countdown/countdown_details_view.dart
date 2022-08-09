@@ -87,15 +87,18 @@ class _CountdownTimerDetailsState extends State<CountdownTimerDetails> {
           // TODO: handle different CountdownStates
           final circles =
               buildCiclesFromCountdownTimer(snapshot.data!, _currentTimeLocal);
+          final state = snapshot.data!.getCountdownState(_currentTimeLocal);
+          final directionText =
+              state != CountdownState.after ? 'down to' : 'up from';
+          final target = snapshot.data!.getNextTarget(_currentTimeLocal);
           return Column(
             children: [
               Text(snapshot.data!.name,
                   style: Theme.of(context).textTheme.headline3),
-              Text(
-                  'Counting down to: ${formatTarget(snapshot.data!.startTime)}'),
+              Text('Counting $directionText: ${formatTarget(target)}'),
               Text(
                   formatDurationToTarget(
-                    snapshot.data!.startTime,
+                    target,
                     _currentTimeLocal,
                     includeMillis: true,
                   ),

@@ -85,6 +85,14 @@ class CountdownTimer {
     }
     return CountdownState.after;
   }
+
+  DateTime getNextTarget(DateTime currentTimeInLocal) {
+    CountdownState state = getCountdownState(currentTimeInLocal);
+    if (endTime == null || state == CountdownState.before) {
+      return startTime;
+    }
+    return endTime!;
+  }
 }
 
 enum CountdownState { before, during, after }
