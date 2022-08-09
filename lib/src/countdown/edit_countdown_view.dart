@@ -29,6 +29,8 @@ class _CountdownTimerFormState extends State<CountdownTimerForm> {
   final _formKey = GlobalKey<FormState>();
   String _name = '';
   DateTime _target = DateTime.now();
+  DateTime _endTime = DateTime.now();
+  bool _includeEndTime = false;
 
   @override
   void initState() {
@@ -71,6 +73,54 @@ class _CountdownTimerFormState extends State<CountdownTimerForm> {
               },
               title: 'Target',
             ),
+            Row(
+              children: [
+                Text(
+                  'Include end time',
+                  style: Theme.of(context).textTheme.bodyText1,
+                ),
+                Switch(
+                    value: _includeEndTime,
+                    onChanged: (enabled) {
+                      setState(() {
+                        _includeEndTime = enabled;
+                      });
+                    }),
+              ],
+            ),
+            if (_includeEndTime)
+              FormField<DateTime>(
+                initialValue: _endTime,
+                validator: (value) {
+                  if (_includeEndTime && !_endTime.isAfter(_target)) {
+                    return 'End time must be after target';
+                  }
+                  return null;
+                },
+                builder: (formFieldState) {
+                  return Column(
+                    children: [
+                      _FormDateTimePicker(
+                        date: _endTime,
+                        onChanged: (value) {
+                          setState(() {
+                            _endTime = value;
+                          });
+                        },
+                        title: 'End Time',
+                      ),
+                      if (!formFieldState.isValid)
+                        Text(
+                          formFieldState.errorText ?? "",
+                          style: Theme.of(context)
+                              .textTheme
+                              .caption!
+                              .copyWith(color: Theme.of(context).errorColor),
+                        )
+                    ],
+                  );
+                },
+              ),
             ElevatedButton(
               onPressed: () {
                 if (_formKey.currentState!.validate()) {
@@ -78,6 +128,7 @@ class _CountdownTimerFormState extends State<CountdownTimerForm> {
                     id: 0,
                     name: _name,
                     startTime: _target.toUtc(),
+                    endTime: _includeEndTime ? _endTime.toUtc() : null,
                     createdAt: DateTime.now().toUtc(),
                   );
                   Provider.of<CountdownTimerProvider>(
