@@ -56,6 +56,7 @@ class MyApp extends StatelessWidget {
           // directory.
           // onGenerateTitle: (BuildContext context) =>
           //     AppLocalizations.of(context)!.appTitle,
+          title: 'Countdown Timer',
 
           // Define a light and dark color theme. Then, read the user's
           // preferred ThemeMode (light, dark, or system default) from the
