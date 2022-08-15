@@ -89,7 +89,8 @@ class _CountdownTimerList extends StatelessWidget {
                 itemBuilder: ((context, index) => ListTile(
                       title: Text(list[index].name),
                       subtitle: Text(formatDurationToTarget(
-                          list[index].startTime, currentTimeLocal)),
+                          list[index].getNextTarget(currentTimeLocal),
+                          currentTimeLocal)),
                       onTap: () {
                         Navigator.pushNamed(
                             context, CountdownTimerDetailsView.routeName,
