@@ -117,6 +117,34 @@ class _CountdownTimerDetailsState extends State<CountdownTimerDetails> {
                   ],
                 );
               })),
+              if (state != CountdownState.after)
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    children: [
+                      Transform(
+                        alignment: Alignment.center,
+                        transform: Matrix4.rotationY(math.pi),
+                        child: LinearProgressIndicator(
+                          value: snapshot.data!
+                              .getFractionalDurationFull(_currentTimeLocal),
+                        ),
+                      ),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      if (snapshot.data!.endTime != null)
+                        Transform(
+                          alignment: Alignment.center,
+                          transform: Matrix4.rotationY(math.pi),
+                          child: LinearProgressIndicator(
+                            value: snapshot.data!
+                                .getFractionalDurationEvent(_currentTimeLocal),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
             ],
           );
         } else if (snapshot.hasError) {

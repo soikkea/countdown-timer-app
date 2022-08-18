@@ -93,6 +93,26 @@ class CountdownTimer {
     }
     return endTime!;
   }
+
+  double _fractionalDuration(
+      DateTime targetUtc, DateTime referenceUtc, DateTime currentTimeLocal) {
+    Duration currentDuration = getDurationInLocal(targetUtc, currentTimeLocal);
+    Duration referenceDuration =
+        getDurationInLocal(targetUtc, referenceUtc.toLocal());
+    return currentDuration.inSeconds.toDouble() /
+        referenceDuration.inSeconds.toDouble();
+  }
+
+  double getFractionalDurationFull(DateTime currentTimeLocal) {
+    return _fractionalDuration(finalTarget, createdAt, currentTimeLocal);
+  }
+
+  double getFractionalDurationEvent(DateTime currentTimeLocal) {
+    if (endTime == null) {
+      return 0.0;
+    }
+    return _fractionalDuration(endTime!, startTime, currentTimeLocal);
+  }
 }
 
 enum CountdownState { before, during, after }
