@@ -53,7 +53,7 @@ class _CountdownTimerFormState extends State<CountdownTimerForm> {
                 labelText: 'Name',
               ),
               validator: (value) {
-                if (value == null || value.isEmpty) {
+                if (value == null || value.trim().isEmpty) {
                   return "Name can't be empty";
                 }
                 return null;
@@ -69,6 +69,9 @@ class _CountdownTimerFormState extends State<CountdownTimerForm> {
               onChanged: (value) {
                 setState(() {
                   _target = value;
+                  if (_endTime.isBefore(_target)) {
+                    _endTime = _target;
+                  }
                 });
               },
               title: 'Target',
@@ -126,7 +129,7 @@ class _CountdownTimerFormState extends State<CountdownTimerForm> {
                 if (_formKey.currentState!.validate()) {
                   final newCountdown = CountdownTimer(
                     id: 0,
-                    name: _name,
+                    name: _name.trim(),
                     startTime: _target.toUtc(),
                     endTime: _includeEndTime ? _endTime.toUtc() : null,
                     createdAt: DateTime.now().toUtc(),
