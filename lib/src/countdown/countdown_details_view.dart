@@ -4,6 +4,7 @@ import 'dart:math' as math;
 import 'package:countdown_timer/src/countdown/circles.dart';
 import 'package:countdown_timer/src/countdown/data/countdown_timer.dart';
 import 'package:countdown_timer/src/countdown/data/countdown_timer_provider.dart';
+import 'package:countdown_timer/src/countdown/edit_countdown_view.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -28,6 +29,16 @@ class CountdownTimerDetailsView extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Details'),
         actions: [
+          IconButton(
+            onPressed: () {
+              Navigator.pushNamed(
+                context,
+                EditCountdownTimerView.routeName,
+                arguments: CountdownTimerDetailsArguments(args.id),
+              );
+            },
+            icon: const Icon(Icons.edit),
+          ),
           IconButton(
             onPressed: () {
               Provider.of<CountdownTimerProvider>(context, listen: false)

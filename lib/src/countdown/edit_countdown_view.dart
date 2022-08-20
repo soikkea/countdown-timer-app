@@ -1,3 +1,5 @@
+import 'package:countdown_timer/src/countdown/countdown_details_view.dart';
+import 'package:countdown_timer/src/countdown/countdown_list_view.dart';
 import 'package:countdown_timer/src/countdown/data/countdown_timer.dart';
 import 'package:countdown_timer/src/countdown/data/countdown_timer_provider.dart';
 import 'package:flutter/material.dart';
@@ -11,15 +13,22 @@ class EditCountdownTimerView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final args = ModalRoute.of(context)!.settings.arguments
+        as CountdownTimerDetailsArguments?;
     return Scaffold(
       appBar: AppBar(title: const Text('Create Countdown')),
-      body: const CountdownTimerForm(),
+      body: CountdownTimerForm(id: args?.id ?? 0),
     );
   }
 }
 
 class CountdownTimerForm extends StatefulWidget {
-  const CountdownTimerForm({Key? key}) : super(key: key);
+  const CountdownTimerForm({
+    Key? key,
+    required this.id,
+  }) : super(key: key);
+
+  final int id;
 
   @override
   State<CountdownTimerForm> createState() => _CountdownTimerFormState();
@@ -31,14 +40,32 @@ class _CountdownTimerFormState extends State<CountdownTimerForm> {
   DateTime _target = DateTime.now();
   DateTime _endTime = DateTime.now();
   bool _includeEndTime = false;
+  final nameTextEditingController = TextEditingController();
+  CountdownTimer? original;
 
   @override
   void initState() {
     super.initState();
+    if (widget.id > 0) {
+      Future<CountdownTimer> timerFuture =
+          Provider.of<CountdownTimerProvider>(context, listen: false)
+              .getCountdownTimer(widget.id);
+      timerFuture.then((value) => {
+            setState(() {
+              _name = value.name;
+              _target = value.startTime.toLocal();
+              _endTime = value.endTime?.toLocal() ?? value.startTime.toLocal();
+              _includeEndTime = value.endTime != null;
+              nameTextEditingController.text = value.name;
+              original = value;
+            })
+          });
+    }
   }
 
   @override
   void dispose() {
+    nameTextEditingController.dispose();
     super.dispose();
   }
 
@@ -49,6 +76,7 @@ class _CountdownTimerFormState extends State<CountdownTimerForm> {
         child: Column(
           children: [
             TextFormField(
+              controller: nameTextEditingController,
               decoration: const InputDecoration(
                 labelText: 'Name',
               ),
@@ -128,20 +156,34 @@ class _CountdownTimerFormState extends State<CountdownTimerForm> {
               onPressed: () {
                 if (_formKey.currentState!.validate()) {
                   final newCountdown = CountdownTimer(
-                    id: 0,
+                    id: widget.id,
                     name: _name.trim(),
                     startTime: _target.toUtc(),
                     endTime: _includeEndTime ? _endTime.toUtc() : null,
-                    createdAt: DateTime.now().toUtc(),
+                    createdAt: original?.createdAt ?? DateTime.now().toUtc(),
                   );
-                  Provider.of<CountdownTimerProvider>(
-                    context,
-                    listen: false,
-                  ).add(newCountdown);
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                    content: Text('New Countdown added!'),
-                  ));
-                  Navigator.pop(context);
+                  if (newCountdown.id > 0) {
+                    Provider.of<CountdownTimerProvider>(
+                      context,
+                      listen: false,
+                    ).updateCountdownTimer(newCountdown);
+                    Navigator.pushNamedAndRemoveUntil(
+                      context,
+                      CountdownTimerDetailsView.routeName,
+                      ModalRoute.withName(CountdownTimerListView.routeName),
+                      arguments:
+                          CountdownTimerDetailsArguments(newCountdown.id),
+                    );
+                  } else {
+                    Provider.of<CountdownTimerProvider>(
+                      context,
+                      listen: false,
+                    ).add(newCountdown);
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                      content: Text('New Countdown added!'),
+                    ));
+                    Navigator.pop(context);
+                  }
                 }
               },
               child: const Text('Submit'),
