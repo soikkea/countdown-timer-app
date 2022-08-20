@@ -84,25 +84,55 @@ class _CountdownTimerList extends StatelessWidget {
           if (snapshot.hasData) {
             var list = snapshot.data! as UnmodifiableListView<CountdownTimer>;
             return ListView.builder(
-                restorationId: 'countdownTimerListView',
-                itemCount: list.length,
-                itemBuilder: ((context, index) => ListTile(
-                      title: Text(list[index].name),
-                      subtitle: Text(formatDurationToTarget(
-                          list[index].getNextTarget(currentTimeLocal),
-                          currentTimeLocal)),
-                      onTap: () {
-                        Navigator.pushNamed(
-                            context, CountdownTimerDetailsView.routeName,
-                            arguments:
-                                CountdownTimerDetailsArguments(list[index].id));
-                      },
-                    )));
+              restorationId: 'countdownTimerListView',
+              itemCount: list.length,
+              itemBuilder: ((context, index) => CountdownListItem(
+                    timer: list[index],
+                    currentTimeLocal: currentTimeLocal,
+                    onTap: () {
+                      Navigator.pushNamed(
+                          context, CountdownTimerDetailsView.routeName,
+                          arguments:
+                              CountdownTimerDetailsArguments(list[index].id));
+                    },
+                  )),
+            );
           } else if (snapshot.hasError) {
             return Text('${snapshot.error}');
           }
 
           return const CircularProgressIndicator();
         });
+  }
+}
+
+class CountdownListItem extends StatelessWidget {
+  final CountdownTimer timer;
+  final DateTime currentTimeLocal;
+  final Function()? onTap;
+  const CountdownListItem({
+    Key? key,
+    required this.timer,
+    required this.currentTimeLocal,
+    this.onTap,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      title: Text(timer.name),
+      subtitle: Text(formatDurationToTarget(
+          timer.getNextTarget(currentTimeLocal), currentTimeLocal)),
+      onTap: onTap,
+      leading: Icon(_getIconData()),
+    );
+  }
+
+  IconData _getIconData() {
+    if (timer.getCountdownState(currentTimeLocal) == CountdownState.after) {
+      return Icons.arrow_upward;
+    } else {
+      return Icons.arrow_downward;
+    }
   }
 }
