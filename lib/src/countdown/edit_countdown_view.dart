@@ -248,7 +248,8 @@ class __FormDateTimePickerState extends State<_FormDateTimePicker> {
                       widget.onChanged(_combineDateAndTime(newDate, time));
                     },
                     child: Text(
-                      DateFormat.yMd().format(widget.date),
+                      DateFormat.yMd(currentLocale.toLanguageTag())
+                          .format(widget.date),
                       style: Theme.of(context).textTheme.subtitle1,
                     ),
                   ),
